@@ -70,6 +70,11 @@ def _assert_seconds(seconds):
         'seconds needs to be <60 and >0, currently {0:.3f}'.format(seconds)
     return seconds
 
+def _restart_count(deg_or_min, value):
+    """ restart the countdown and skip error if seconds or minutes are equal to 60.
+    """
+    return ( deg_or_min + value//60, value%60 )  if float (value) >=60. else (
+        deg_or_min, value )  
 
 def convert_position_str2float(position_str):
     """
@@ -98,9 +103,12 @@ def convert_position_str2float(position_str):
                   'Position needs to be DD:MM:SS.ms'
             raise GISError(msg)
         p_list = position_str.split(':')
+        
         deg = float(p_list[0])
-        minutes = _assert_minutes(float(p_list[1]))
-        sec = _assert_seconds(float(p_list[2]))
+        minutes = float(p_list[1])
+        sec = float(p_list[2])
+        minutes, sec = _restart_count(minutes, sec) 
+        deg, minutes =  _restart_count(deg, minutes) 
         sign = np.sign(deg)
 
         position_value = sign * (abs(deg) + minutes / 60. + sec / 3600.)
