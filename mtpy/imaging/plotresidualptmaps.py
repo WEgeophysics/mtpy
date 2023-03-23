@@ -412,7 +412,7 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
                                             {'range':(0,10), 'cmap':'mt_yl2rd',
                                              'size':.005,
                                              'colorby':'geometric_mean'}) 
-            self._read_ellipse_dict()
+            self._read_ellipse_dict(self._ellipse_dict)
             self.ellipse_scale = kwargs.pop('ellipse_scale', None)
         elif self.map_scale == 'm':        
             self.xpad = kwargs.pop('xpad', 1000)
@@ -422,7 +422,7 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
                                             {'range':(0,5), 'cmap':'mt_yl2rd',
                                              'size':500,
                                              'colorby':'geometric_mean'})
-            self._read_ellipse_dict()
+            self._read_ellipse_dict(self._ellipse_dict)
             self.ellipse_scale = kwargs.pop('ellipse_scale', None)
 
         elif self.map_scale == 'km':        
@@ -433,7 +433,7 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
                                             {'range':(0,5), 'cmap':'mt_yl2rd',
                                              'size':.5,
                                              'colorby':'geometric_mean'})
-            self._read_ellipse_dict()
+            self._read_ellipse_dict(self._ellipse_dict)
             self.ellipse_scale = kwargs.pop('ellipse_scale', None)
 
 
@@ -540,9 +540,9 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
         
         freq_list = []
         for mt1 in self.mt_list1:
-            freq_list.extend(mt1.freq)
+            freq_list.extend(mt1.Z.freq)
         for mt2 in self.mt_list2:
-            freq_list.extend(mt2.freq)
+            freq_list.extend(mt2.Z.freq)
             
         self.freq_list = np.array(sorted(set(freq_list), reverse=True))
                 
@@ -578,11 +578,11 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
         for mm, mt1 in enumerate(self.mt_list1):
             station_find = False
             fdict1 = dict([(np.round(ff, 5), ii) 
-                            for ii, ff in enumerate(mt1.freq)])
+                            for ii, ff in enumerate(mt1.Z.freq)])
             for mt2 in self.mt_list2:
                 if mt2.station == mt1.station:
                     fdict2 = dict([(np.round(ff, 5), ii) 
-                                    for ii, ff in enumerate(mt2.freq)])
+                                    for ii, ff in enumerate(mt2.Z.freq)])
                     
                     #need to make sure only matched frequencies are compared
                     index_1 = []
@@ -600,12 +600,12 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
                     index_2.sort()
                     
                     #create new Z objects that have similar frequencies                                              
-                    new_z1 = mtpl.mtz.Z(z_array=mt1.z[index_1],
-                                        z_err_array=mt1.z_err[index_1],
-                                        freq=mt1.freq[index_1])
-                    new_z2 = mtpl.mtz.Z(z_array=mt2.z[index_2],
-                                        z_err_array=mt2.z_err[index_2],
-                                        freq=mt2.freq[index_2])
+                    new_z1 = mtpl.mtz.Z(z_array=mt1.Z.z[index_1],
+                                        z_err_array=mt1.Z.z_err[index_1],
+                                        freq=mt1.Z.freq[index_1])
+                    new_z2 = mtpl.mtz.Z(z_array=mt2.Z.z[index_2],
+                                        z_err_array=mt2.Z.z_err[index_2],
+                                        freq=mt2.Z.freq[index_2])
                                         
                     #make new phase tensor objects
                     pt1 = mtpt.PhaseTensor(z_object=new_z1)
@@ -661,7 +661,7 @@ class PlotResidualPTMaps(mtpl.MTEllipse):
                                 print('index in big    :  {0}'.format(aa))
                                 print('index in 1      :  {0} '.format(rr))
                                 print('len_1 = {0}, len_2 = {1}'.format(
-                                        len(mt2.freq), len(mt1.freq)))
+                                        len(mt2.Z.freq), len(mt1.Z.freq)))
                                 print('len rpt_freq = {0}'.format(len(rpt.freq)))
                         except KeyError:
                             print('Station {0} does not have {1:.5f}Hz'.format(

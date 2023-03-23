@@ -1074,7 +1074,7 @@ class Profile():
         """
 
         self._get_edi_list()
-
+        
         strike_angles = np.zeros(self.num_edi)
 
         easts = np.zeros(self.num_edi)
@@ -1178,7 +1178,10 @@ class Profile():
             self.profile_line = (p1, p2)
         
             for edi in self.edi_list:
+                zero_vals = edi.Z.z == 0
                 edi.Z.rotate(self.geoelectric_strike - edi.Z.rotation_angle)
+                edi.Z.z[zero_vals] = 0
+                edi.Z.compute_resistivity_phase()
                 # rotate tipper to profile azimuth, not strike.
                 try:
                     edi.Tipper.rotate((self.profile_angle - 90) % 180 -
@@ -4082,10 +4085,10 @@ class PlotResponse():
             ax_list = [axrte, axrtm]
             for aa, axr in enumerate(ax_list):
                 # set both axes to logarithmic scale
-                axr.set_xscale('log', nonposx='clip')
+                axr.set_xscale('log', nonpositive='clip')
 
                 try:
-                    axr.set_yscale('log', nonposy='clip')
+                    axr.set_yscale('log', nonpositive='clip')
                 except ValueError:
                     pass
 
@@ -4140,7 +4143,7 @@ class PlotResponse():
             # set Properties for the phase axes
             for aa, axp in enumerate([axpte, axptm]):
                 # set the x-axis to log scale
-                axp.set_xscale('log', nonposx='clip')
+                axp.set_xscale('log', nonpositive='clip')
 
                 # set the phase limits
                 axp.set_ylim(self.phase_limits)
@@ -4171,7 +4174,7 @@ class PlotResponse():
             # set axes properties of tipper axis
             if self.plot_tipper == 'y':
                 for aa, axt in enumerate([axtipre, axtipim]):
-                    axt.set_xscale('log', nonposx='clip')
+                    axt.set_xscale('log', nonpositive='clip')
 
                     # set tipper limits
                     axt.set_ylim(self.tip_limits)
